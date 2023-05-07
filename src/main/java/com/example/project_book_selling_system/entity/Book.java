@@ -6,6 +6,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 @Table(name = "book")
@@ -13,8 +14,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class Book {
 
 	@Id
-	@Column(name = "ISBN")
-	private String ISBN;
+	@Column(name = "isbn")
+	private String isbn;
 
 	@Column(name = "book")
 	private String book;
@@ -32,15 +33,16 @@ public class Book {
 	private Integer sales = 0;
 
 	@Column(name = "key_value")
+	@JsonProperty("key_value")
 	private String keyValue;
 
 	public Book() {
 		super();
 	}
 
-	public Book(String iSBN, String book, String auther, int price, Integer inventory, Integer sales, String keyValue) {
+	public Book(String isbn, String book, String auther, int price, Integer inventory, Integer sales, String keyValue) {
 		super();
-		ISBN = iSBN;
+		this.isbn = isbn;
 		this.book = book;
 		this.auther = auther;
 		this.price = price;
@@ -49,9 +51,9 @@ public class Book {
 		this.keyValue = keyValue;
 	}
 
-	public Book(String iSBN, String book, String auther, int price, Integer inventory, Integer sales) {
+	public Book(String isbn, String book, String auther, int price, Integer inventory, Integer sales) {
 		super();
-		ISBN = iSBN;
+		this.isbn = isbn;
 		this.book = book;
 		this.auther = auther;
 		this.price = price;
@@ -59,9 +61,9 @@ public class Book {
 		this.sales = sales;
 	}
 
-	public Book(String ISBN, String book, String auther, int price, Integer inventory, String keyValue) {
+	public Book(String isbn, String book, String auther, int price, Integer inventory, String keyValue) {
 		super();
-		this.ISBN = ISBN;
+		this.isbn = isbn;
 		this.book = book;
 		this.auther = auther;
 		this.price = price;
@@ -69,18 +71,18 @@ public class Book {
 		this.keyValue = keyValue;
 	}
 	
-	public Book(String iSBN, String book, String auther, int price, Integer inventory) {
+	public Book(String isbn, String book, String auther, int price, Integer inventory) {
 		super();
-		ISBN = iSBN;
+		this.isbn = isbn;
 		this.book = book;
 		this.auther = auther;
 		this.price = price;
 		this.inventory = inventory;
 	}
 	
-	public Book(String iSBN, String book, String auther, int price) {
+	public Book(String isbn, String book, String auther, int price) {
 		super();
-		ISBN = iSBN;
+		this.isbn = isbn;
 		this.book = book;
 		this.auther = auther;
 		this.price = price;
@@ -94,12 +96,12 @@ public class Book {
 		this.book = book;
 	}
 
-	public String getISBN() {
-		return ISBN;
+	public String getIsbn() {
+		return isbn;
 	}
 
-	public void setISBN(String iSBN) {
-		ISBN = iSBN;
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
 
 	public String getAuther() {

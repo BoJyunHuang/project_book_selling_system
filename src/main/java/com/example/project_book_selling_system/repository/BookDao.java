@@ -18,10 +18,10 @@ public interface BookDao extends JpaRepository<Book, String> {
 	// 新增書籍(Insert)
 	@Transactional
 	@Modifying
-	@Query(value = "insert into book (ISBN, book, auther, price, inventory, sales, key_value) "
-			+ "select :ISBN, :book, :auther, :price, :inventory, :sales, :keyValue "
-			+ "where not exists (select 1 from book where ISBN = :ISBN)", nativeQuery = true)
-	public int insertBook(@Param("ISBN") String ISBN, @Param("book") String book, @Param("auther") String auther,
+	@Query(value = "insert into book (isbn, book, auther, price, inventory, sales, key_value) "
+			+ "select :isbn, :book, :auther, :price, :inventory, :sales, :keyValue "
+			+ "where not exists (select 1 from book where isbn = :isbn)", nativeQuery = true)
+	public int insertBook(@Param("isbn") String isbn, @Param("book") String book, @Param("auther") String auther,
 			@Param("price") int price, @Param("inventory") int inventory, @Param("sales") int sales,
 			@Param("keyValue") String keyValue);
 
@@ -30,8 +30,8 @@ public interface BookDao extends JpaRepository<Book, String> {
 	public List<Book> findByKeyValue(@Param("inputKeyValue") String keyValue);
 
 	// 透過條件尋找書籍
-	@Query(value = "select * from book b where b.ISBN = :ISBN or b.book = :Book or b.auther = :Auther", nativeQuery = true)
-	public List<Book> searchBy(@Param("ISBN") String ISBN, @Param("Book") String book,
+	@Query(value = "select * from book b where b.isbn = :isbn or b.book = :Book or b.auther = :Auther", nativeQuery = true)
+	public List<Book> searchBy(@Param("isbn") String isbn, @Param("Book") String book,
 			@Param("Auther") String auther);
 
 	// 最佳銷售前五名

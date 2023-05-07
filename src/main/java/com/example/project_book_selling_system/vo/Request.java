@@ -3,25 +3,43 @@ package com.example.project_book_selling_system.vo;
 import java.util.List;
 import java.util.Map;
 
+import com.example.project_book_selling_system.entity.Book;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+@JsonInclude(JsonInclude.Include.NON_NULL) // 不顯示值為null的key 和 value
 public class Request {
 
-	private String ISBN;
+	@JsonProperty("book_entity")
+	private Book bookEntity;
+	private String isbn;
 	private String book;
 	private String auther;
 	private int price;
 	private Integer inventory;
 	private Integer sales;
+	@JsonProperty("key_value")
 	private String keyValue;
+	@JsonProperty("key_values")
 	private List<String> keyValues;
+	@JsonProperty("buy_list")
 	private Map<String, Integer> buyList;
 	private boolean isCustomer;
 
-	public String getISBN() {
-		return ISBN;
+	public Book getBookEntity() {
+		return bookEntity;
 	}
 
-	public void setISBN(String iSBN) {
-		ISBN = iSBN;
+	public void setBookEntity(Book bookEntity) {
+		this.bookEntity = bookEntity;
+	}
+
+	public String getIsbn() {
+		return isbn;
+	}
+
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
 	}
 
 	public String getBook() {

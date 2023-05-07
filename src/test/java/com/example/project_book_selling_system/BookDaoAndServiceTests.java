@@ -164,34 +164,34 @@ public class BookDaoAndServiceTests {
 	@Test
 	void renewBookSaleInfo1Test() {
 		// 狀況:輸入內容空白
-		Request request = new Request();
-		Response res1 = bSer.renewBookSaleInfo(request);
+		Book book = new Book();
+		Response res1 = bSer.renewBookSaleInfo(book);
 		Assert.isTrue(res1.getMessage().equals(RtnCode.CANNOT_EMPTY.getMessage()), RtnCode.TEST1_ERROR.getMessage());
 		// 狀況:ISBN不存在
-		request.setISBN("ISBNTest");
-		Response res2 = bSer.renewBookSaleInfo(request);
+		book.setIsbn("ISBNTest");
+		Response res2 = bSer.renewBookSaleInfo(book);
 		Assert.isTrue(res2.getMessage().equals(RtnCode.NOT_FOUND.getMessage()), RtnCode.TEST2_ERROR.getMessage());
 		// 狀況:無修改任何資訊
-		request.setISBN("ISBN001");
-		Response res3 = bSer.renewBookSaleInfo(request);
+		book.setIsbn("ISBN001");
+		Response res3 = bSer.renewBookSaleInfo(book);
 		Assert.isTrue(res3.getMessage().equals(RtnCode.INCORRECT.getMessage()), RtnCode.TEST2_ERROR.getMessage());
 	}
 
 	@Test
 	void renewBookSaleInfo2Test() {
 		// 狀況:輸入價錢相同
-		Request request = new Request();
-		request.setISBN("ISBN001");
-		request.setPrice(1000);
-		Response res1 = bSer.renewBookSaleInfo(request);
-		Assert.isTrue(res1.getMessage().equals(RtnCode.ALREADY_EXISTED.getMessage()), RtnCode.TEST1_ERROR.getMessage());
+		Book book = new Book();
+		book.setIsbn("ISBN001");
+		book.setPrice(1000);
+		Response res1 = bSer.renewBookSaleInfo(book);
+		Assert.isTrue(res1.getMessage().equals(RtnCode.REPEAT.getMessage()), RtnCode.TEST1_ERROR.getMessage());
 		// 狀況:改價成功
-		request.setPrice(1500);
-		Response res2 = bSer.renewBookSaleInfo(request);
+		book.setPrice(1500);
+		Response res2 = bSer.renewBookSaleInfo(book);
 		Assert.isTrue(res2.getMessage().equals(RtnCode.SUCCESS.getMessage()), RtnCode.TEST2_ERROR.getMessage());
 		// 狀況:無修改任何資訊
-		request.setPrice(0);
-		Response res3 = bSer.renewBookSaleInfo(request);
+		book.setPrice(0);
+		Response res3 = bSer.renewBookSaleInfo(book);
 		Assert.isTrue(res3.getMessage().equals(RtnCode.INCORRECT.getMessage()), RtnCode.TEST3_ERROR.getMessage());
 	}
 	

@@ -18,7 +18,7 @@ public class Controller {
 
 	@PostMapping(value = "add_book")
 	public Response addBook(@RequestBody Request request) {
-		return bookService.addBook(request.getISBN(), request.getBook(), request.getAuther(), request.getPrice(),
+		return bookService.addBook(request.getIsbn(), request.getBook(), request.getAuther(), request.getPrice(),
 				request.getInventory(), request.getKeyValue());
 	}
 
@@ -29,12 +29,12 @@ public class Controller {
 
 	@GetMapping(value = "search_book")
 	public Response searchBook(@RequestBody Request request) {
-		return bookService.searchBook(request.isCustomer(), request.getISBN(), request.getBook(), request.getAuther());
+		return bookService.searchBook(request.isCustomer(), request.getIsbn(), request.getBook(), request.getAuther());
 	}
 
 	@GetMapping(value = "renew_book_sale_info")
 	public Response renewBookSaleInfo(@RequestBody Request request) {
-		return bookService.renewBookSaleInfo(request);
+		return bookService.renewBookSaleInfo(request.getBookEntity());
 	}
 
 	@GetMapping(value = "book_selling")
