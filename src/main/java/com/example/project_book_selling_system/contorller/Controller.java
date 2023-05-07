@@ -24,12 +24,12 @@ public class Controller {
 
 	@GetMapping(value = "search_key_value")
 	public Response searchKeyValue(@RequestBody Request request) {
-		return bookService.searchKeyValue(request.getKeyValue());
+		return bookService.searchKeyValue(request.getKeyValues());
 	}
 
 	@GetMapping(value = "search_book")
 	public Response searchBook(@RequestBody Request request) {
-		return bookService.searchBook(request.isCustomer(), request);
+		return bookService.searchBook(request.isCustomer(), request.getISBN(), request.getBook(), request.getAuther());
 	}
 
 	@GetMapping(value = "renew_book_sale_info")
@@ -42,7 +42,7 @@ public class Controller {
 		return bookService.bookSelling(request.getBuyList());
 	}
 
-	@GetMapping(value = "book_selling")
+	@GetMapping(value = "best_selling_info")
 	public Response bestSellingInfo() {
 		return bookService.bestSellingInfo();
 	}

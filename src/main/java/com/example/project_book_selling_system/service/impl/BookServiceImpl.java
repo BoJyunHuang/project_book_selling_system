@@ -26,186 +26,141 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Response addBook(String ISBN, String book, String auther, int price, Integer inventory, String keyValue) {
-		// 防止輸入為空
+		// 0.防止輸入為空或錯誤
 		if (!StringUtils.hasText(ISBN) || !StringUtils.hasText(book) || !StringUtils.hasText(auther)
-				|| !StringUtils.hasText(keyValue)) {
-			return new Response(RtnCode.CANNOT_EMPTY.getMessage());
-		}
-		// 輸入價格與庫存錯誤
-		if (price < 0 || inventory == null || inventory < 0) {
+				|| !StringUtils.hasText(keyValue) || price < 0 || inventory == null || inventory < 0) {
 			return new Response(RtnCode.INCORRECT.getMessage());
 		}
-		// 新增物件
-		Integer sales = 0;
-		int res = bookDao.insertBook(ISBN, book, auther, price, inventory, sales, keyValue);
-		// 物件已存在
-		if (res == 0) {
-			return new Response(RtnCode.ALREADY_EXISTED.getMessage());
-		}
-		return new Response(RtnCode.SUCCESSFUL.getMessage());
+		// 1.新增物件
+		return bookDao.insertBook(ISBN, book, auther, price, inventory, 0, keyValue) == 0
+				? new Response(RtnCode.ALREADY_EXISTED.getMessage())
+				: new Response(RtnCode.SUCCESSFUL.getMessage());
 	}
 
 	@Override
-	public Response searchKeyValue(String keyValue) {
-		// 防止輸入為空
-		if (!StringUtils.hasText(keyValue)) {
+	public Response searchKeyValue(List<String> keyValues) {
+		// 0.防空輸入
+		if (CollectionUtils.isEmpty(keyValues)) {
 			return new Response(RtnCode.CANNOT_EMPTY.getMessage());
 		}
-		// 尋找書籍
-		List<Book> res = bookDao.findByKeyValue(keyValue);
-		// 物件不存在
-		if (CollectionUtils.isEmpty(res)) {
-			return new Response(RtnCode.NOT_FOUND.getMessage());
+		// 1.整理字串
+		String totalKeyValues = "";
+		for (int i = 0; i < keyValues.size(); i++) {
+			totalKeyValues += i < keyValues.size() - 1 ? keyValues.get(i) + "|" : keyValues.get(i);
 		}
-		return new Response(res, RtnCode.SUCCESS.getMessage());
+		// 2.尋找書籍
+		List<Book> res = bookDao.findByKeyValue(totalKeyValues);
+		return CollectionUtils.isEmpty(res) ? new Response(RtnCode.NOT_FOUND.getMessage())
+				: new Response(revealInfo(res, true, false, false), RtnCode.SUCCESS.getMessage());
 	}
 
 	@Override
-	public Response searchBook(boolean isCustomer, Request request) {
-		// 防止空輸入
-		if (request == null) {
-			return new Response(RtnCode.CANNOT_EMPTY.getMessage());
-		}
-		Book resBook = new Book();
-		List<Book> res = new ArrayList<>();
-		// 顧客狀況
-		if (isCustomer) {
-			// 用ISBN
-			if (StringUtils.hasText(request.getISBN())) {
-				resBook = bookDao.CustomerfindByISBN(request.getISBN());
-				if (resBook == null) {
-					return new Response(RtnCode.NOT_FOUND.getMessage());
-				}
-				return new Response(res, RtnCode.SUCCESS.getMessage());
-			}
-			// 用書名
-			if (StringUtils.hasText(request.getBook())) {
-				res = bookDao.CustomerfindByBook(request.getBook());
-				if (CollectionUtils.isEmpty(res)) {
-					return new Response(RtnCode.NOT_FOUND.getMessage());
-				}
-				return new Response(res, RtnCode.SUCCESS.getMessage());
-			}
-			// 用作者
-			if (StringUtils.hasText(request.getAuther())) {
-				res = bookDao.CustomerfindByAuther(request.getAuther());
-				if (CollectionUtils.isEmpty(res)) {
-					return new Response(RtnCode.NOT_FOUND.getMessage());
-				}
-				return new Response(res, RtnCode.SUCCESS.getMessage());
-			}
-		}
-		// 書商狀況
-		// 用ISBN
-		if (StringUtils.hasText(request.getISBN())) {
-			resBook = bookDao.SellerfindByISBN(request.getISBN());
-			if (resBook == null) {
-				return new Response(RtnCode.NOT_FOUND.getMessage());
-			}
-			return new Response(res, RtnCode.SUCCESS.getMessage());
-		}
-		// 用書名
-		if (StringUtils.hasText(request.getBook())) {
-			res = bookDao.SellerfindByBook(request.getBook());
-			if (CollectionUtils.isEmpty(res)) {
-				return new Response(RtnCode.NOT_FOUND.getMessage());
-			}
-			return new Response(res, RtnCode.SUCCESS.getMessage());
-		}
-		// 用作者
-		if (StringUtils.hasText(request.getAuther())) {
-			res = bookDao.SellerfindByAuther(request.getAuther());
-			if (CollectionUtils.isEmpty(res)) {
-				return new Response(RtnCode.NOT_FOUND.getMessage());
-			}
-			return new Response(res, RtnCode.SUCCESS.getMessage());
-		}
-		return new Response(RtnCode.INCORRECT.getMessage());
+	public Response searchBook(boolean isCustomer, String ISBN, String book, String auther) {
+		// 1.用ISBN或書名或作者
+		List<Book> res = bookDao.searchBy(ISBN, book, auther);
+		// 2.依據身分回傳
+		return CollectionUtils.isEmpty(res) ? new Response(RtnCode.NOT_FOUND.getMessage())
+				: (isCustomer ? new Response(revealInfo(res, false, false, false), RtnCode.SUCCESS.getMessage())
+						: new Response(revealInfo(res, true, true, false), RtnCode.SUCCESS.getMessage()));
 	}
 
 	@Override
 	public Response renewBookSaleInfo(Request request) {
-		// 防止空輸入
+		// 0.防止空輸入
 		if (request == null || !StringUtils.hasText(request.getISBN())) {
 			return new Response(RtnCode.CANNOT_EMPTY.getMessage());
 		}
-		// 確認存在
+		// 1.確認存在
 		Optional<Book> res = bookDao.findById(request.getISBN());
 		if (res.isEmpty()) {
 			return new Response(RtnCode.NOT_FOUND.getMessage());
 		}
-		// 修改價格
+		// 2-1.修改價格
 		if (request.getPrice() > 0) {
 			if (res.get().getPrice() == request.getPrice()) {
 				return new Response(RtnCode.ALREADY_EXISTED.getMessage());
 			}
 			res.get().setPrice(request.getPrice());
-			bookDao.save(res.get());
-			res.get().setKeyValue(null);
-			return new Response(res.get(), RtnCode.SUCCESS.getMessage());
+			return new Response(hideInfo(bookDao.save(res.get()), false, true, true), RtnCode.SUCCESS.getMessage());
 		}
-		// 修改庫存(進貨)
+		// 2-2.修改庫存(進貨)
 		if (request.getInventory() != null && request.getInventory() > 0) {
 			res.get().setPrice(res.get().getPrice() + request.getPrice());
-			bookDao.save(res.get());
-			res.get().setKeyValue(null);
-			return new Response(res.get(), RtnCode.SUCCESS.getMessage());
+			return new Response(hideInfo(bookDao.save(res.get()), false, true, true), RtnCode.SUCCESS.getMessage());
 		}
-		// 修改分類(新增分類)
+		// 2-3.修改分類(新增分類)
 		if (StringUtils.hasText(request.getKeyValue())) {
-			String newKeyValue = res.get().getKeyValue() + ", " + request.getKeyValue();
-			res.get().setKeyValue(newKeyValue);
-			bookDao.save(res.get());
-			res.get().setInventory(null);
-			return new Response(res.get(), RtnCode.SUCCESS.getMessage());
+			res.get().setKeyValue(res.get().getKeyValue() + ", " + request.getKeyValue());
+			return new Response(hideInfo(bookDao.save(res.get()), true, true, false), RtnCode.SUCCESS.getMessage());
 		}
-		// 確認無修改
+		// 3.確認無修改
 		return new Response(RtnCode.INCORRECT.getMessage());
-
 	}
 
 	@Override
 	public Response bookSelling(Map<String, Integer> buyList) {
-		// 防止輸入為0
+		// 0.防止輸入為0
 		if (CollectionUtils.isEmpty(buyList)) {
 			return new Response(RtnCode.CANNOT_EMPTY.getMessage());
 		}
-		// 查詢欲買書籍
+		// 1.過濾空字串後，抽出欲買書籍ISBN (lambda方法)
 		List<String> ISBNs = new ArrayList<>();
-		for (Entry<String, Integer> b : buyList.entrySet()) {
-			ISBNs.add(b.getKey());
-		}
-		// 確認欲買書籍存在
+		buyList.entrySet().stream()
+				.filter(b -> b.getKey() != null && !b.getKey().isEmpty() && b.getValue() != null && b.getValue() > 0)
+				.forEach(b -> {
+					ISBNs.add(b.getKey());
+				});
+
+		// 2.確認欲買書籍存在
 		List<Book> res = bookDao.findAllById(ISBNs);
 		if (CollectionUtils.isEmpty(res) || res.size() != ISBNs.size()) {
 			return new Response(RtnCode.NOT_FOUND.getMessage());
 		}
-		// 計算價錢
+		// 3.計算價錢
 		int total = 0;
 		for (Book r : res) {
-			total = r.getPrice() * buyList.get(r.getISBN()); // 計算價錢
+			total += r.getPrice() * buyList.get(r.getISBN()); // 計算價錢
 			r.setInventory(r.getInventory() - buyList.get(r.getISBN())); // 扣除庫存
-			r.setSales(buyList.get(r.getISBN())); // 新增銷售量
+			r.setSales(r.getSales() + buyList.get(r.getISBN())); // 新增銷售量
 		}
-		// 儲存資訊
-		bookDao.saveAll(res);
-		for (Book r:res) {
-			r.setInventory(null);
-			r.setSales(null);
-			r.setKeyValue(null);
-		}
-		return new Response(buyList, res, total, RtnCode.SUCCESS.getMessage());
+		// 4.儲存資訊
+		return new Response(buyList, revealInfo(bookDao.saveAll(res), false, false, false), total,
+				RtnCode.SUCCESS.getMessage());
 	}
 
 	@Override
 	public Response bestSellingInfo() {
-		List<Book> res = bookDao.BestSellTop5();
-		for (Book r:res) {
-			r.setInventory(null);
-			r.setSales(null);
-			r.setKeyValue(null);
+		return new Response(revealInfo(bookDao.BestSellTop5(), false, false, false), RtnCode.SUCCESS.getMessage());
+	}
+
+	// 私有方法:選擇顯示>庫存、銷售、分類
+	private List<Book> revealInfo(List<Book> bookList, boolean isInventory, boolean isSales, boolean isKeyValue) {
+		for (Book b : bookList) {
+			if (!isInventory) {
+				b.setInventory(null);
+			}
+			if (!isSales) {
+				b.setSales(null);
+			}
+			if (!isKeyValue) {
+				b.setKeyValue(null);
+			}
 		}
-		return new Response(res, RtnCode.SUCCESS.getMessage());
+		return bookList;
+	}
+
+	// 私有方法:選擇隱藏>庫存、銷售、分類
+	private Book hideInfo(Book book, boolean isInventory, boolean isSales, boolean isKeyValue) {
+		if (isInventory) {
+			book.setInventory(null);
+		}
+		if (isSales) {
+			book.setSales(null);
+		}
+		if (isKeyValue) {
+			book.setKeyValue(null);
+		}
+		return book;
 	}
 
 }

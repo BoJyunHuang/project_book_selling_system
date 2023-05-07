@@ -1,5 +1,6 @@
 package com.example.project_book_selling_system.vo;
 
+import java.util.List;
 import java.util.Map;
 
 public class Request {
@@ -11,6 +12,7 @@ public class Request {
 	private Integer inventory;
 	private Integer sales;
 	private String keyValue;
+	private List<String> keyValues;
 	private Map<String, Integer> buyList;
 	private boolean isCustomer;
 
@@ -68,6 +70,14 @@ public class Request {
 
 	public void setKeyValue(String keyValue) {
 		this.keyValue = keyValue;
+	}
+
+	public List<String> getKeyValues() {
+		return keyValues;
+	}
+
+	public void setKeyValues(List<String> keyValues) {
+		this.keyValues = keyValues;
 	}
 
 	public Map<String, Integer> getBuyList() {

@@ -1,5 +1,6 @@
 package com.example.project_book_selling_system.service.ifs;
 
+import java.util.List;
 import java.util.Map;
 
 import com.example.project_book_selling_system.vo.Request;
@@ -11,14 +12,14 @@ public interface BookService {
 	public Response addBook(String ISBN, String book, String auther, int price, Integer inventory, String keyValue);
 
 	// 2.書籍分類搜尋，只顯示書名、ISBN、作者、價格、庫存量
-	public Response searchKeyValue(String keyValue);
+	public Response searchKeyValue(List<String> keyValueList);
 
 	/*
 	 * 3.書籍搜尋，透過書名或ISBN或作者。
 	 * 消費者:只顯示書名、ISBN、作者、價格。 
 	 * 書籍商:顯示書名、ISBN、作者、價格、銷售量、庫存量。
 	 */
-	public Response searchBook(boolean isCustomer, Request request);
+	public Response searchBook(boolean isCustomer, String ISBN, String book, String auther);
 
 	/*
 	 * 4.更新書籍資料 
