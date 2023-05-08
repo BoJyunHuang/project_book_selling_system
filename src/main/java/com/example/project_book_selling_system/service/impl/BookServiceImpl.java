@@ -57,7 +57,8 @@ public class BookServiceImpl implements BookService {
 	@Override
 	public Response searchBook(boolean isCustomer, String isbn, String book, String auther) {
 		// 1.用ISBN或書名或作者
-		List<Book> res = bookDao.searchBy(isbn, book, auther);
+		List<Book> res = bookDao.searchBy(StringUtils.hasText(isbn) ? isbn : null,
+				StringUtils.hasText(book) ? book : null, StringUtils.hasText(auther) ? auther : null);
 		// 2.依據身分回傳
 		return CollectionUtils.isEmpty(res) ? new Response(RtnCode.NOT_FOUND.getMessage())
 				: isCustomer ? new Response(revealInfo(res, false, false, false), RtnCode.SUCCESS.getMessage())
@@ -110,7 +111,6 @@ public class BookServiceImpl implements BookService {
 				.forEach(b -> {
 					isbns.add(b.getKey());
 				});
-
 		// 2.確認欲買書籍存在
 		List<Book> res = bookDao.findAllById(isbns);
 		if (CollectionUtils.isEmpty(res) || res.size() != isbns.size()) {
@@ -136,30 +136,18 @@ public class BookServiceImpl implements BookService {
 	// 私有方法:選擇顯示>庫存、銷售、分類
 	private List<Book> revealInfo(List<Book> bookList, boolean isInventory, boolean isSales, boolean isKeyValue) {
 		for (Book b : bookList) {
-			if (!isInventory) {
-				b.setInventory(null);
-			}
-			if (!isSales) {
-				b.setSales(null);
-			}
-			if (!isKeyValue) {
-				b.setKeyValue(null);
-			}
+			b.setInventory(isInventory ? b.getInventory() : null);
+			b.setSales(isSales ? b.getSales() : null);
+			b.setKeyValue(isKeyValue ? b.getKeyValue() : null);
 		}
 		return bookList;
 	}
 
 	// 私有方法:選擇隱藏>庫存、銷售、分類
 	private Book hideInfo(Book book, boolean isInventory, boolean isSales, boolean isKeyValue) {
-		if (isInventory) {
-			book.setInventory(null);
-		}
-		if (isSales) {
-			book.setSales(null);
-		}
-		if (isKeyValue) {
-			book.setKeyValue(null);
-		}
+		book.setInventory(isInventory ? null : book.getInventory());
+		book.setSales(isSales ? null : book.getSales());
+		book.setKeyValue(isKeyValue ? null : book.getKeyValue());
 		return book;
 	}
 

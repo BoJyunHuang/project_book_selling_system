@@ -30,9 +30,8 @@ public interface BookDao extends JpaRepository<Book, String> {
 	public List<Book> findByKeyValue(@Param("inputKeyValue") String keyValue);
 
 	// 透過條件尋找書籍
-	@Query(value = "select * from book b where b.isbn = :isbn or b.book = :Book or b.auther = :Auther", nativeQuery = true)
-	public List<Book> searchBy(@Param("isbn") String isbn, @Param("Book") String book,
-			@Param("Auther") String auther);
+	@Query(value = "select * from book b where b.isbn = :isbn or b.book like concat('%', :book, '%') or b.auther = :auther", nativeQuery = true)
+	public List<Book> searchBy(@Param("isbn") String isbn, @Param("book") String book, @Param("auther") String auther);
 
 	// 最佳銷售前五名
 	@Query(value = "select * from book b order by b.sales desc limit 5", nativeQuery = true)
