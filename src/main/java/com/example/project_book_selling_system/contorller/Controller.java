@@ -1,6 +1,7 @@
 package com.example.project_book_selling_system.contorller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -10,6 +11,7 @@ import com.example.project_book_selling_system.service.ifs.BookService;
 import com.example.project_book_selling_system.vo.Request;
 import com.example.project_book_selling_system.vo.Response;
 
+@CrossOrigin
 @RestController
 public class Controller {
 
